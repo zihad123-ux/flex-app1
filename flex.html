@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Flex.com</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif}
+body{background:#0f172a;color:white;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.container{width:100%;max-width:420px;background:#020617;padding:20px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+h1{text-align:center;margin-bottom:15px}
+input,textarea,button{
+width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px
+}
+input,textarea{background:#020617;color:white;border:1px solid #1e293b}
+button{background:#2563eb;color:white;font-weight:600;cursor:pointer}
+button:hover{background:#1d4ed8}
+.link{margin-top:10px;font-size:12px;color:#94a3b8}
+.message{background:#020617;border:1px solid #1e293b;padding:10px;border-radius:10px;margin-top:10px}
+.small{font-size:12px;color:#94a3b8;margin-top:5px}
+</style>
+</head>
+<body>
+<div class="container" id="auth">
+<h1>Flex.com</h1>
+<input id="username" placeholder="Username" />
+<input id="password" type="password" placeholder="Password" />
+<button onclick="signup()">Signup</button>
+<button onclick="login()">Login</button>
+</div>
+
+<div class="container" id="dashboard" style="display:none">
+<h1>Your Inbox</h1>
+<div id="userLink" class="link"></div>
+<div id="messages"></div>
+<button onclick="logout()">Logout</button>
+</div>
+
+<div class="container" id="sendBox" style="display:none">
+<h1>Send Anonymous Message</h1>
+<textarea id="anonMsg" placeholder="Write something..."></textarea>
+<button onclick="sendMessage()">Send</button>
+<div class="small">anonymous • powered by Flex</div>
+</div>
+
+<script>
+let currentUser=null
+
+function signup(){
+let u=username.value
+let p=password.value
+localStorage.setItem("user_"+u,p)
+alert("Account created")
+}
+
+function login(){
+let u=username.value
+let p=password.value
+let saved=localStorage.getItem("user_"+u)
+if(saved===p){
+currentUser=u
+showDashboard()
+}else alert("Wrong login")
+}
+
+function showDashboard(){
+auth.style.display="none"
+dashboard.style.display="block"
+userLink.innerText="Your link: "+location.origin+location.pathname+"?user="+currentUser
+loadMessages()
+}
+
+function loadMessages(){
+messages.innerHTML=""
+let data=JSON.parse(localStorage.getItem("msg_"+currentUser)||"[]")
+data.reverse().forEach(m=>{
+let div=document.createElement("div")
+div.className="message"
+div.innerText=m
+messages.appendChild(div)
+})
+}
+
+function logout(){
+location.reload()
+}
+
+function sendMessage(){
+let user=new URLSearchParams(location.search).get("user")
+let msg=anonMsg.value
+let data=JSON.parse(localStorage.getItem("msg_"+user)||"[]")
+data.push(msg)
+localStorage.setItem("msg_"+user,JSON.stringify(data))
+anonMsg.value=""
+alert("sent anonymously")
+}
+
+let urlUser=new URLSearchParams(location.search).get("user")
+if(urlUser){
+auth.style.display="none"
+sendBox.style.display="block"
+}
+</script>
+</body>
+</html>
